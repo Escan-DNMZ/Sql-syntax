@@ -298,3 +298,54 @@ inner join order_details on order_details.order_id = order.id --order_details ı
 -- customer ın id sini birleştirmiştik yani 2 adet birleştirme yapmış olduk
 -- Notlar tamamen Escan Dönmez e aittir izinsiz kullanmayınız
 ```
+# Trigger (Sql tetikleme)
+
+> Bir Database imiz olsun CoreBlogDbText adında içerisinde Tbl1 ve Tbl2 adında iki adet tablomuz olsun Tbl1 de Id ve CategoryName olsun Tbl2 de ise Toplam adında int bir kolon Category arttıkca bizim toplamımızada +1 sayı ekliyicek bunu şu kodlar ile sağlayabilirsiniz
+> 
+
+```sql
+Create Trigger TestArttir
+On Tbl1  //Nerde çalışıcak
+After Insert //Insert edildikden sonra
+As
+Update Tbl2 Set Toplam=Toplam+1 //Tbl2 deki toplamın değerine bir ekle
+```
+
+## Trigger Paremetreli kullanım (Sql)
+
+> Bu sefer Tbl1 tablomuza Puan adında bir kolon daha ekliyelim ve Tbl3 adında bir tablo daha oluşturalım içerisine Id,Yorum,Puan ve Kategori adında 4 adet kolon girelim sonrasında Tbl1 deki Kategori ile Tbl3 deki kategoriyi ilişkili hale getiriyoruz ardından Tbl3 e değerler giriyoruz
+> 
+
+```sql
+Id         Yorum        Puan       Kategori
+1          Yorum1       7          1
+2          Yorum2       3          3
+3          Yorum3       8          3
+4          Yorum4       2          2
+```
+
+> Biz buradaki Puanları Tbl1 tablosundaki Puan lara eklemesini istiyoruz null bir değeri arttıramıyacağımızdan dolayı tüm puanları 0 olarak ayarlıyorum ve trigger ı aşağıdaki gibi ekliyoruz.
+> 
+
+```sql
+Create Trigger PuanArttir
+On Tbl3
+After Insert
+As
+Declare @p int, //Değişken tanımlıyoruz - Puan
+Declare @k int //Kategori
+Select @p=puan/*Tbl3 deki puan*/,@k=Kategori from inserted
+Update Tbl1 Set Puan = Puan+@p Where Id = @k /*Eğer kategori uyuyorsa
+Tbl1 deki Puana Tbl3 deki Puanı kadar ekle*/
+
+//Anlamayanlar için
+Id         Yorum        Puan       Kategori
+1          Yorum1       7          1
+2          Yorum2       3          3
+3          Yorum3       8          3
+4          Yorum4       2          2
+
+/* eğer biz Yorum 5 yazıp 9 puan 3. kategori yaparsak artık
+Tbl1 deki 3. kategorinin Puanı 3+8+9 yani 20 olur tüm kategori 3 e ait
+Yorumların puanını ekler*/
+```
